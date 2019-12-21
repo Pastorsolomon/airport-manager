@@ -1,5 +1,8 @@
 var map
 var flightList = document.getElementById('flights');
+var fBlock = document.getElementById('f-block');
+var departures = [];
+var arrivals = [];
 var locations = [
   {
     "nameAirport": "Jos",
@@ -423,6 +426,7 @@ fillHeader = (type) => `
   <th>Airline</th>
   <th>Status</th>
   <th>Time</th>
+  <th>Action</th>
 </tr>`;
 fillRows = (data, index, type) => `
 <tr class="highlight parcel-row" data-index="${index}">
@@ -431,6 +435,7 @@ fillRows = (data, index, type) => `
   <td class="select-parcel" data-index="${index}"> ${data.airline.name}</td>
   <td class="select-parcel" data-index="${index}"> ${data.status}</td>
   <td class="select-parcel" data-index="${index}"> ${moment(data[type].scheduledTime).fromNow()}</td>
+  <td><button class="btn-small btn-primary f-details" id="detail-${index}" data-index="${index}" data-type="${type}">details</button></td>
 </tr>`;
 // const k ={
 //   "type": "departure",
@@ -474,22 +479,30 @@ fillRows = (data, index, type) => `
 //   "codeshared": null
 //   }
 // fetch orders only made by logged in user
-const getFlights = (route, type) => { 
+const getFlights = async (route, type, idx) => { 
+  console.log('idx', idx);
   const status = [];
   fetch(route)
     .then(res => res.json())
     .then((data) => {
       console.log(data);
-      const departures = data;
+      const flights = data;
       // load parcel table
       selectedPage = 1;
       const departureHeader = fillHeader(`${type}s`.toUpperCase());
       // const paginate = pagination();
-      let departureDetails = '',
-        index = 0;
+      let departureDetails = '';
+      let index = idx;
       flightList.innerHTML += departureHeader;
-        departures.map((departure) => {
-          departureDetails = fillRows(departure, index, type);
+        flights.map((flight) => {
+          // console.log('departure', departure.flight.iataNumber);
+          if(type === 'departure') {
+            departures.push(flight);
+          }
+          else {
+            arrivals.push(flight);
+          }
+          departureDetails = fillRows(flight, index, type);
           flightList.innerHTML += departureDetails;
           departureDetails = '';
           index += 1;
@@ -497,10 +510,41 @@ const getFlights = (route, type) => {
         return '';
       });
   };
-const addScheduleClick = () => {
+// get flight details
+const getStatus = async (route,  dat, type) => { 
+  // const status = [];
+  fetch(route)
+    .then(res => res.json())
+    .then((data) => {
+      console.log(data);
+      if(type === 'departure') {
+        fBlock.innerHTML = '';
+        console.log(route);
+        fBlock.innerHTML += `<p class="tiny"><b>Fligth from:</b> ${data[0].nameAirport} ${data[0].nameCountry}</p>`
+        fBlock.innerHTML += `<p class="tiny"><b>Scheduled for departure at:</b> ${moment(dat['departure'].scheduledTime).format('dddd, MMMM Do YYYY, h:mm:ss a')}</p>`
+      }
+      else {
+        fBlock.innerHTML += `<p class="tiny"><b>Fligth to:</b> ${data[0].nameAirport} ${data[0].nameCountry}</p>`
+        fBlock.innerHTML += `<p class="tiny"><b>Scheduled for arrival at:</b> ${moment(dat['arrival'].scheduledTime).format('dddd, MMMM Do YYYY, h:mm:ss a')}</p>`
+        fBlock.innerHTML += `<p class="tiny"><b>Airline: </b>${dat['airline'].name}</p>`
+        fBlock.innerHTML += `<p class="tiny"><b>Status: </b>${dat['status']}</p>`
+      }
+        return '';
+      });
+  };
+const showModal = () => {
+  document.getElementById('flight-detail').classList.remove('hidden');
+};
+
+// function for dismissing modal
+const dismissModal = () => {
+  document.getElementById('flight-detail').classList.add('hidden');
+};
+const addScheduleClick = async () => {
   document.querySelector('body').addEventListener('click', function(event) {
     if (event.target.className === 'f-schedule') {
       flightList.innerHTML = "";
+      flights = [];
       // do your action on your 'li' or whatever it is you're listening for
       console.log(locations[event.target.getAttribute('f-id')]);
       const iata = locations[event.target.getAttribute('f-id')].codeIataAirport;
@@ -509,8 +553,49 @@ const addScheduleClick = () => {
       getFlights(routeD, 'departure');
       getFlights(routeA, 'arrival');
     }
+    if (event.target.className.includes('f-details')) {
+      const id = event.target.getAttribute('data-index');
+      const type = event.target.getAttribute('data-type');
+      console.log(id, type);
+      let data;
+      if ( type === 'departure') {
+        console.log(departures.length)
+        data = departures[id];
+        const departure = data['departure']['iataCode'];
+        const route2 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${departure}`;
+        const departureData = getStatus(route2, data, 'departure');
+        const arrival = data['arrival']['iataCode'];
+        const route1 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${arrival}`;
+        const arrivalData = setTimeout(getStatus, 1000, route1, data, 'arrival');
+        console.log(arrivalData, departureData);
+      }
+      else {
+        data = arrivals[id];
+        const departure = data['departure']['iataCode'];
+        const route2 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${departure}`;
+        const departureData = getStatus(route2, data, 'departure');
+        const arrival = data['arrival']['iataCode'];
+        const route1 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${arrival}`;
+        const arrivalData = setTimeout(getStatus, 1000, route1, data, 'arrival');
+        console.log(arrivalData, departureData);
+      }
+      console.log(data);
+      // console.log('iata',iata);
+      // const route = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=LOS`;
+      // const route = `https://aviation-edge.com/v2/public/flights?key=d173c5-1ccc59&flightIata=${iata}`;
+      // getStatus(route);
+      showModal();
+    }
+    if(event.target.className.includes('dismiss-modal')) {
+      dismissModal();
+    }
   });
 }
-window.onload = () => {
+
+window.onload = async () => {
   addScheduleClick();
+  const routeD = `https://aviation-edge.com/v2/public/timetable?key=d173c5-1ccc59&iataCode=LOS&type=departure`;
+  const routeA = `https://aviation-edge.com/v2/public/timetable?key=d173c5-1ccc59&iataCode=LOS&type=arrival`;
+  getFlights(routeD, 'departure', 0);
+  setTimeout(getFlights, 1000, routeA, 'arrival', 0);
 };

@@ -47,8 +47,8 @@ and (min-device-width : 768px)  {
   position: absolute;
   background-color: white;
   top: 20px;
-  left: 35%;
-  width: 30%;
+  left: 25%;
+  width: 40%;
 }
 .col-md-1 {
   width: 100%;
@@ -113,4 +113,8 @@ and (min-device-width : 768px)  {
   display: inline;
   color: #AAAA39;
   margin: 0px 7px;
+}
+
+.tiny{
+  font-size: 14px;
 }
