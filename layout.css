@@ -33,6 +33,19 @@ and (max-device-width : 767px) {
   .col-sm-3 {
     width: 32.5%;
   }
+  #scrollable {
+    width: 100%;
+    overflow: auto;
+  }
+  #flights {
+    table-layout: fixed;
+    width: 180%;
+    white-space: nowrap;
+  }
+  table tbody {
+    display: table;
+    width: 100%;
+  }
 }
 
 /* iPads (portrait and landscape) ----------- */
