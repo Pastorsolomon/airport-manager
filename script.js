@@ -1,9 +1,16 @@
-var map
-var flightList = document.getElementById('flights');
-var fBlock = document.getElementById('f-block');
-var departures = [];
-var arrivals = [];
-var locations = [
+// global variables
+let map
+// reference to the flights slot on the table element in the hmtl
+let flightList = document.getElementById('flights');
+// reference to the f-block slot on the modal(pop up) in the html
+let fBlock = document.getElementById('f-block');
+// for holding data for all the departure flights for a airport
+let departures = [];
+// for holding data for all the arrival flights for a airport
+let arrivals = [];
+
+// data for nigerian airports only
+const locations = [
   {
     "nameAirport": "Jos",
     "codeIataAirport": "JOS",
@@ -379,7 +386,11 @@ var locations = [
     "directions": "https://goo.gl/maps/asUkmozGKVuoqCmXA"
   }
 ];
-function initMap() {
+
+// this function initiate the google map using the google map javascript sdk
+const initMap = () => {
+
+  // instantiate a new google map object with a map slot reference and the longitude and latitude for the center (nigeria) and then the zoom level of the map
   map = new google.maps.Map(document.getElementById('map'), {
     center: {
       lat: 9.59396,
@@ -387,23 +398,23 @@ function initMap() {
     },
     zoom: 6,
   })
+  // instantiate the info window on the google map sdk with an empty object
   var infowindow = new google.maps.InfoWindow({})
 
+  // loop through location and use it to pin a marker via the location longitude and latitude
   var marker, i
-  // var locations2 = [
-  //   [broadway.info, broadway.lat, broadway.long, 0],
-  //   [belmont.info, belmont.lat, belmont.long, 1],
-  //   [sheridan.info, sheridan.lat, sheridan.long, 2],
-  // ]
   for (i = 0; i < locations.length; i++) {
-  
+    // create a marker object using locations[i] latitudeAirport and longitudeAirport properties
     marker = new google.maps.Marker({
       position: new google.maps.LatLng(locations[i].latitudeAirport, locations[i].longitudeAirport),
       map: map,
     })
+    // get additional information from the locations[i] object
     let info = `<br>${locations[i].nameAirport} Airport<br>\
     <a href="${locations[i].directions}">Get Directions</a>
     <br><a href="#" f-id="${i}" class="f-schedule">Get Airport flight shedules</a>`;
+
+    // add event listener to the marker so it can pop up the google map info window
     google.maps.event.addListener(
       marker,
       'click',
@@ -417,8 +428,8 @@ function initMap() {
   }
 }
 
-// fill header
-fillHeader = (type) => `
+// fill header returns the html for the table header accepts the flight type as parameter
+const fillHeader = (type) => `
 <h3 style="color:black; text-align: center; position: relative; top: 10px;">${type}</h3>
 <tr>
   <th>From</th>
@@ -428,7 +439,9 @@ fillHeader = (type) => `
   <th>Time</th>
   <th>Action</th>
 </tr>`;
-fillRows = (data, index, type) => `
+
+// fill rows returns the html for the table rows it accepts the row data the row index and the flight type as parameters
+const fillRows = (data, index, type) => `
 <tr class="highlight parcel-row" data-index="${index}">
   <td class="select-parcel" data-index="${index}"> ${data.departure.iataCode}</td>
   <td class="select-parcel" data-index="${index}" id="destination${data.id}"> ${data.arrival.iataCode}</td>
@@ -437,63 +450,26 @@ fillRows = (data, index, type) => `
   <td class="select-parcel" data-index="${index}"> ${moment(data[type].scheduledTime).fromNow()}</td>
   <td><button class="btn-small btn-primary f-details" id="detail-${index}" data-index="${index}" data-type="${type}">details</button></td>
 </tr>`;
-// const k ={
-//   "type": "departure",
-//   "status": "landed",
-//   "departure": {
-//   "iataCode": "LOS",
-//   "icaoCode": "DNMM",
-//   "terminal": "I",
-//   "gate": null,
-//   "baggage": null,
-//   "delay": null,
-//   "scheduledTime": "2019-12-02T03:50:00.000",
-//   "estimatedTime": null,
-//   "actualTime": null,
-//   "estimatedRunway": "2019-12-02T04:35:00.000",
-//   "actualRunway": "2019-12-02T04:35:00.000"
-//   },
-//   "arrival": {
-//   "iataCode": "ACC",
-//   "icaoCode": "DGAA",
-//   "terminal": "3",
-//   "gate": null,
-//   "baggage": null,
-//   "delay": null,
-//   "scheduledTime": "2019-12-02T03:55:00.000",
-//   "estimatedTime": null,
-//   "actualTime": null,
-//   "estimatedRunway": "2019-12-02T04:13:00.000",
-//   "actualRunway": "2019-12-02T04:13:00.000"
-//   },
-//   "airline": {
-//   "name": "Air Italy",
-//   "iataCode": "IG",
-//   "icaoCode": "ISS"
-//   },
-//   "flight": {
-//   "number": "841",
-//   "iataNumber": "IG841",
-//   "icaoNumber": "ISS841"
-//   },
-//   "codeshared": null
-//   }
-// fetch orders only made by logged in user
+
+// fetch flights from the api and inserts into the flight slot in the ui
 const getFlights = async (route, type, idx) => { 
   console.log('idx', idx);
   const status = [];
+  // fetch is a ecma script standard optimized for fetching data form external sources (apis) fetch implements the javascript promise patterner and it's asynchrous  and thenable.
   fetch(route)
     .then(res => res.json())
     .then((data) => {
       console.log(data);
+      // store the flight data inside the flight variable
       const flights = data;
-      // load parcel table
       selectedPage = 1;
+      // retrieve the header for the flights by calling fillHeader with the departure type
       const departureHeader = fillHeader(`${type}s`.toUpperCase());
-      // const paginate = pagination();
       let departureDetails = '';
       let index = idx;
+      // use the flight list reference to insert the header into the flight slot via the innerHtml property of the fligth reference
       flightList.innerHTML += departureHeader;
+        // use the map object to loop through the fligths and then retrieve the row html markup for each fligth via fillRow and then insert into the dom via the fligthList reference 
         flights.map((flight) => {
           // console.log('departure', departure.flight.iataNumber);
           if(type === 'departure') {
@@ -510,7 +486,7 @@ const getFlights = async (route, type, idx) => {
         return '';
       });
   };
-// get flight details
+// get flight details and insert it into the dom via the fblock reference using the html node innerHTML property.
 const getStatus = async (route,  dat, type) => { 
   // const status = [];
   fetch(route)
@@ -522,6 +498,8 @@ const getStatus = async (route,  dat, type) => {
         console.log(route);
         fBlock.innerHTML += `<p class="tiny"><b>Fligth from:</b> ${data[0].nameAirport} ${data[0].nameCountry}</p>`
         fBlock.innerHTML += `<p class="tiny"><b>Scheduled for departure at:</b> ${moment(dat['departure'].scheduledTime).format('dddd, MMMM Do YYYY, h:mm:ss a')}</p>`
+        fBlock.innerHTML += `<p class="tiny"><b>Airline: </b>${dat['airline'].name}</p>`
+        fBlock.innerHTML += `<p class="tiny"><b>Status: </b>${dat['status']}</p>`
       }
       else {
         fBlock.innerHTML += `<p class="tiny"><b>Fligth to:</b> ${data[0].nameAirport} ${data[0].nameCountry}</p>`
@@ -532,70 +510,99 @@ const getStatus = async (route,  dat, type) => {
         return '';
       });
   };
+// it ensures the modal is shown by removing the hidden class from it
 const showModal = () => {
   document.getElementById('flight-detail').classList.remove('hidden');
 };
 
-// function for dismissing modal
+// function for dismissing modal that simply adds the hidden class to the element so it doesn't get displayed
 const dismissModal = () => {
   document.getElementById('flight-detail').classList.add('hidden');
 };
+// it schedules a click event listener to all elements with f-schedule classname (all flight rows) and on clicking it, get flightstatus and also displays the fligth details modal
 const addScheduleClick = async () => {
+  // delegate the body click event to f-schedule if the event target classname is f-schedule and then execute the needed functionalities
   document.querySelector('body').addEventListener('click', function(event) {
     if (event.target.className === 'f-schedule') {
       flightList.innerHTML = "";
       flights = [];
-      // do your action on your 'li' or whatever it is you're listening for
-      console.log(locations[event.target.getAttribute('f-id')]);
+      // use the element's f-id attribute value (id value) to retrieve the airport data from the locations array and then finally retrieve it's codIataAirport property
       const iata = locations[event.target.getAttribute('f-id')].codeIataAirport;
+      // create route for departure
       const routeD = `https://aviation-edge.com/v2/public/timetable?key=d173c5-1ccc59&iataCode=${iata}&type=departure`;
+      // create route for arrival
       const routeA = `https://aviation-edge.com/v2/public/timetable?key=d173c5-1ccc59&iataCode=${iata}&type=arrival`;
+      // get fligths for departure
       getFlights(routeD, 'departure');
+
+      // get flights for arrivals
       getFlights(routeA, 'arrival');
-    }
+    } 
+    // delegate the body click event to the element whose class name includes f-details and perform the required actions
     if (event.target.className.includes('f-details')) {
+      // get the id for the row
       const id = event.target.getAttribute('data-index');
+      // get the flight type for the row
       const type = event.target.getAttribute('data-type');
       console.log(id, type);
       let data;
       if ( type === 'departure') {
-        console.log(departures.length)
+        // console.log(departures.length)
+        // retrieve the data from departures using the id
         data = departures[id];
+        // get the departure iataCode
         const departure = data['departure']['iataCode'];
+        // the route for departure
         const route2 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${departure}`;
+        // get the departure status
         const departureData = getStatus(route2, data, 'departure');
+        // get the departure code for arrival
         const arrival = data['arrival']['iataCode'];
+        // the route for arrival
         const route1 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${arrival}`;
+        // get the arrival status
         const arrivalData = setTimeout(getStatus, 1000, route1, data, 'arrival');
-        console.log(arrivalData, departureData);
+        // console.log(arrivalData, departureData);
       }
       else {
+        // retrieve the data from arrivals using the arrivals array
         data = arrivals[id];
+        // get departure iataCode
         const departure = data['departure']['iataCode'];
+        // get the route for departure
         const route2 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${departure}`;
+        // get the status for departure
         const departureData = getStatus(route2, data, 'departure');
+        // get the iatacode for arrival
         const arrival = data['arrival']['iataCode'];
+        // get the route for arrival
         const route1 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${arrival}`;
+        // ge the status of arrival
         const arrivalData = setTimeout(getStatus, 1000, route1, data, 'arrival');
-        console.log(arrivalData, departureData);
+        // console.log(arrivalData, departureData);
       }
       console.log(data);
-      // console.log('iata',iata);
-      // const route = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=LOS`;
-      // const route = `https://aviation-edge.com/v2/public/flights?key=d173c5-1ccc59&flightIata=${iata}`;
-      // getStatus(route);
+      // show the modal
       showModal();
     }
+    // delegat the body click for the element whose classname includes dismiss-modal and execute the necessary functions
     if(event.target.className.includes('dismiss-modal')) {
+      // dismiss the modal
       dismissModal();
     }
   });
 }
-
+ 
+// the windows.onload functions ensures the javascript engine is ready before executing script.js
 window.onload = async () => {
+  // call addScheduleClick()
   addScheduleClick();
+  // load departure route for lagos
   const routeD = `https://aviation-edge.com/v2/public/timetable?key=d173c5-1ccc59&iataCode=LOS&type=departure`;
+  
+  // load arrival route for lagos
   const routeA = `https://aviation-edge.com/v2/public/timetable?key=d173c5-1ccc59&iataCode=LOS&type=arrival`;
+  // load departure flights for lagos
   getFlights(routeD, 'departure', 0);
   setTimeout(getFlights, 1000, routeA, 'arrival', 0);
 };
