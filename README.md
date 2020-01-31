@@ -1,2 +1,2 @@
-# hotel-man
-a sample hotel management page
+# airport-man
+a sample airport schedule management app
