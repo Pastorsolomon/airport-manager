@@ -1,5 +1,5 @@
 // global variables
-let map
+let map;
 // reference to the flights slot on the table element in the hmtl
 let flightList = document.getElementById('flights');
 // reference to the f-block slot on the modal(pop up) in the html
@@ -596,6 +596,7 @@ const addScheduleClick = async () => {
 // the windows.onload functions ensures the javascript engine is ready before executing script.js
 window.onload = async () => {
   // call addScheduleClick()
+  initMap();
   addScheduleClick();
   // load departure route for lagos
   const routeD = `https://aviation-edge.com/v2/public/timetable?key=d173c5-1ccc59&iataCode=LOS&type=departure`;
