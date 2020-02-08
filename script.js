@@ -466,7 +466,7 @@ const getFlights = async (route, type, idx) => {
       // retrieve the header for the flights by calling fillHeader with the departure type
       const departureHeader = fillHeader(`${type}s`.toUpperCase());
       let departureDetails = '';
-      let index = idx;
+      let index = 0;
       // use the flight list reference to insert the header into the flight slot via the innerHtml property of the fligth reference
       flightList.innerHTML += departureHeader;
         // use the map object to loop through the fligths and then retrieve the row html markup for each fligth via fillRow and then insert into the dom via the fligthList reference 
