@@ -533,6 +533,7 @@ const addScheduleClick = async () => {
       // create route for arrival
       const routeA = `https://aviation-edge.com/v2/public/timetable?key=d173c5-1ccc59&iataCode=${iata}&type=arrival`;
       // get fligths for departure
+      console.log(event.target);
       getFlights(routeD, 'departure', event.target.getAttribute('f-id'));
 
       // get flights for arrivals
