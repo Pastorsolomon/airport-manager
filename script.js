@@ -561,7 +561,7 @@ const addScheduleClick = async () => {
         const departureData = getStatus(route2, data, 'departure');
         // get the departure code for arrival
         const arrival = data['arrival']['iataCode'];
-        copnsole.log('arrv', arrival)
+        console.log('arrv', arrival)
         // the route for arrival
         const route1 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${arrival}`;
         // get the arrival status
@@ -580,7 +580,7 @@ const addScheduleClick = async () => {
         const departureData = getStatus(route2, data, 'departure');
         // get the iatacode for arrival
         const arrival = data['arrival']['iataCode'];
-        copnsole.log('arrv', arrival)
+        console.log('arrv', arrival)
         // get the route for arrival
         const route1 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${arrival}`;
         // ge the status of arrival
