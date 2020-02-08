@@ -8,7 +8,7 @@ let fBlock = document.getElementById('f-block');
 let departures = [];
 // for holding data for all the arrival flights for a airport
 let arrivals = [];
-
+let airportIndex = 0;
 // data for nigerian airports only
 const locations = [
   {
@@ -526,6 +526,7 @@ const addScheduleClick = async () => {
     if (event.target.className === 'f-schedule') {
       flightList.innerHTML = "";
       flights = [];
+      airportIndex = parseInt(event.target.getAttribute('f-id'));
       // use the element's f-id attribute value (id value) to retrieve the airport data from the locations array and then finally retrieve it's codIataAirport property
       const iata = locations[event.target.getAttribute('f-id')].codeIataAirport;
       // create route for departure
@@ -553,12 +554,14 @@ const addScheduleClick = async () => {
         data = departures[id];
         // get the departure iataCode
         const departure = data['departure']['iataCode'];
+        console.log('dept', departure);
         // the route for departure
         const route2 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${departure}`;
         // get the departure status
         const departureData = getStatus(route2, data, 'departure');
         // get the departure code for arrival
         const arrival = data['arrival']['iataCode'];
+        copnsole.log('arrv', arrival)
         // the route for arrival
         const route1 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${arrival}`;
         // get the arrival status
@@ -570,12 +573,14 @@ const addScheduleClick = async () => {
         data = arrivals[id];
         // get departure iataCode
         const departure = data['departure']['iataCode'];
+        console.log('dept', departure);
         // get the route for departure
         const route2 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${departure}`;
         // get the status for departure
         const departureData = getStatus(route2, data, 'departure');
         // get the iatacode for arrival
         const arrival = data['arrival']['iataCode'];
+        copnsole.log('arrv', arrival)
         // get the route for arrival
         const route1 = `https://aviation-edge.com/v2/public/airportDatabase?key=d173c5-1ccc59&codeIataAirport=${arrival}`;
         // ge the status of arrival
