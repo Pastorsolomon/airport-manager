@@ -459,7 +459,7 @@ const getFlights = async (route, type, idx) => {
   fetch(route)
     .then(res => res.json())
     .then((data) => {
-      console.log(data);
+      console.log('data', data);
       // store the flight data inside the flight variable
       const flights = data;
       selectedPage = 1;
