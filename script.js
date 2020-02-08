@@ -526,6 +526,8 @@ const addScheduleClick = async () => {
     if (event.target.className === 'f-schedule') {
       flightList.innerHTML = "";
       flights = [];
+      departures = [];
+      arrivals = []
       airportIndex = parseInt(event.target.getAttribute('f-id'));
       // use the element's f-id attribute value (id value) to retrieve the airport data from the locations array and then finally retrieve it's codIataAirport property
       const iata = locations[event.target.getAttribute('f-id')].codeIataAirport;
