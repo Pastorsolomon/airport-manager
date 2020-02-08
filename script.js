@@ -533,10 +533,10 @@ const addScheduleClick = async () => {
       // create route for arrival
       const routeA = `https://aviation-edge.com/v2/public/timetable?key=d173c5-1ccc59&iataCode=${iata}&type=arrival`;
       // get fligths for departure
-      getFlights(routeD, 'departure');
+      getFlights(routeD, 'departure', event.target.getAttribute('f-id'));
 
       // get flights for arrivals
-      getFlights(routeA, 'arrival');
+      getFlights(routeA, 'arrival', event.target.getAttribute('f-id'));
     } 
     // delegate the body click event to the element whose class name includes f-details and perform the required actions
     if (event.target.className.includes('f-details')) {
